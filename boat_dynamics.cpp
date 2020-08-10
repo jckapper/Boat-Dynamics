@@ -23,7 +23,7 @@ namespace boat_dynamics {
         //define wrench here
         modeling::Wrench u;
         u.F = grav*boat_mass_kg;
-        u.T = Vector3d(0, 0, 750);
+        u.T = Vector3d(0, 0, 250);
 
         //    boat_speed_mps_ = 0.5;
         // boat_speed_mps_ = nh_private_.param<double>("boat_speed", 0.0); // Is this speed needed
@@ -33,8 +33,8 @@ namespace boat_dynamics {
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         modeling::State6DOF Current_State;
         Current_State.X = (T_0_boat_);
-        Current_State.v = Vector3d(0., 0., 0.);
-        Current_State.w = Vector3d(0., 0., 0.);
+        Current_State.v = Vector3d(2.0, 0.0, 0.0);
+        Current_State.w = Vector3d(0.0, 0.0, 0.0);
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
         marker_pub_ = nh_.advertise<visualization_msgs::Marker>("boat_marker", 1);
@@ -67,7 +67,7 @@ namespace boat_dynamics {
     }
 
     // Beginning adaptation
-    modeling::State6DOF BoatDynamics::RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,
+    modeling::ErrorState6DOF BoatDynamics::RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,
         const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt)
     {
         modeling::ErrorState6DOF k1 = dynamics(State, u, mass, inertia, inertia_inv);
@@ -83,7 +83,7 @@ namespace boat_dynamics {
 
         modeling::ErrorState6DOF dx = (k1 + k2 * 2.0 + k3 * 2.0 + k4) * (dt / 6.0);
 
-        return State + dx;
+        return dx;
 
     }
 
@@ -91,7 +91,6 @@ namespace boat_dynamics {
         const double& m, const Eigen::Matrix3d& J, const Eigen::Matrix3d& J_inv)
     {
         modeling::ErrorState6DOF dx;
-        // Need to work on reference frame implementation
         dx.p = x.q.rota(x.v);
         dx.v = u.F / m + x.q.rotp(grav) - x.w.cross(x.v);
         dx.q = x.w;
@@ -117,7 +116,7 @@ namespace boat_dynamics {
         
         // Need to update boat state
         // T_0_boat_.t_(0) += boat_speed_mps_ * dt;
-        Current_State = RKintegrate(Current_State, u, boat_mass_kg, boat_inertia, boat_inertia_inv, dt);
+        Current_State += RKintegrate(Current_State, u, boat_mass_kg, boat_inertia, boat_inertia_inv, dt);
 
         // ++++ update orientation using from_two_unit_vectors ++++
 
