@@ -237,7 +237,7 @@ private:
     double t_prev_;
     bool t_initialized_;
     modeling::State6DOF Current_State;
-    modeling::Wrench u;
+    modeling::Wrench Initial_wrench;
 
 
     Xformd T_0_boat_;

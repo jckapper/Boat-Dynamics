@@ -21,9 +21,9 @@ namespace boat_dynamics {
         Matrix3d boat_inertia_inv = boat_inertia.inverse();
 
         //define wrench here
-        modeling::Wrench u;
-        u.F = grav*boat_mass_kg;
-        u.T = Vector3d(0, 0, 250);
+        modeling::Wrech Initial_wrench;
+        Initial_wrench.F = grav*boat_mass_kg;
+        Initial_wrench.T = Vector3d(0, 0, 250);
 
         //    boat_speed_mps_ = 0.5;
         // boat_speed_mps_ = nh_private_.param<double>("boat_speed", 0.0); // Is this speed needed
@@ -116,7 +116,7 @@ namespace boat_dynamics {
         
         // Need to update boat state
         // T_0_boat_.t_(0) += boat_speed_mps_ * dt;
-        Current_State += RKintegrate(Current_State, u, boat_mass_kg, boat_inertia, boat_inertia_inv, dt);
+        Current_State += RKintegrate(Current_State, Initial_wrench, boat_mass_kg, boat_inertia, boat_inertia_inv, dt);
 
         // ++++ update orientation using from_two_unit_vectors ++++
 
@@ -131,9 +131,9 @@ namespace boat_dynamics {
     void BoatDynamics::setMessageStates(ros::Time& rt)
     {
         transform_.header.stamp = rt;
-        transform_.transform.translation.x = Current_State.v(0);
-        transform_.transform.translation.y = Current_State.v(1);
-        transform_.transform.translation.z = Current_State.v(2);
+        transform_.transform.translation.x = Current_State.v(0)*dt;
+        transform_.transform.translation.y = Current_State.v(1)*dt;
+        transform_.transform.translation.z = Current_State.v(2)*dt;
         transform_.transform.rotation.w = Current_State.X.q_.w();
         transform_.transform.rotation.x = Current_State.X.q_.x();
         transform_.transform.rotation.y = Current_State.X.q_.y();
