@@ -23,7 +23,7 @@ namespace boat_dynamics {
         //define wrench here
         modeling::Wrench u;
         u.F = grav*boat_mass_kg;
-        u.T = Vector3d(0, 0, 250);
+        u.T = Vector3d(0, 0, 750);
 
         //    boat_speed_mps_ = 0.5;
         // boat_speed_mps_ = nh_private_.param<double>("boat_speed", 0.0); // Is this speed needed
@@ -67,7 +67,7 @@ namespace boat_dynamics {
     }
 
     // Beginning adaptation
-    void BoatDynamics::RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,
+    modeling::State6DOF BoatDynamics::RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,
         const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt)
     {
         modeling::ErrorState6DOF k1 = dynamics(State, u, mass, inertia, inertia_inv);
@@ -83,7 +83,7 @@ namespace boat_dynamics {
 
         modeling::ErrorState6DOF dx = (k1 + k2 * 2.0 + k3 * 2.0 + k4) * (dt / 6.0);
 
-        State += dx;
+        return State + dx;
 
     }
 
@@ -117,7 +117,7 @@ namespace boat_dynamics {
         
         // Need to update boat state
         // T_0_boat_.t_(0) += boat_speed_mps_ * dt;
-        RKintegrate(Current_State, u, boat_mass_kg, boat_inertia, boat_inertia_inv, dt);
+        Current_State = RKintegrate(Current_State, u, boat_mass_kg, boat_inertia, boat_inertia_inv, dt);
 
         // ++++ update orientation using from_two_unit_vectors ++++
 
@@ -132,15 +132,15 @@ namespace boat_dynamics {
     void BoatDynamics::setMessageStates(ros::Time& rt)
     {
         transform_.header.stamp = rt;
-        transform_.transform.translation.x = T_0_boat_.t_(0);
-        transform_.transform.translation.y = T_0_boat_.t_(1);
-        transform_.transform.translation.z = T_0_boat_.t_(2);
-        transform_.transform.rotation.w = T_0_boat_.q_.w();
-        transform_.transform.rotation.x = T_0_boat_.q_.x();
-        transform_.transform.rotation.y = T_0_boat_.q_.y();
-        transform_.transform.rotation.z = T_0_boat_.q_.z();
+        transform_.transform.translation.x = Current_State.v(0);
+        transform_.transform.translation.y = Current_State.v(1);
+        transform_.transform.translation.z = Current_State.v(2);
+        transform_.transform.rotation.w = Current_State.X.q_.w();
+        transform_.transform.rotation.x = Current_State.X.q_.x();
+        transform_.transform.rotation.y = Current_State.X.q_.y();
+        transform_.transform.rotation.z = Current_State.X.q_.z();
 
-        Xformd T_NED_boat = T_NED_0_ * T_0_boat_;
+        Xformd T_NED_boat = T_NED_0_ * Current_State.X;
 
         truth_.header.stamp = rt;
         truth_.pose.position.x = T_NED_boat.t_(0);

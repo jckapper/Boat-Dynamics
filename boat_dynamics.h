@@ -218,7 +218,7 @@ public:
 private:
     void onUpdate(const ros::TimerEvent &event);
     void setMessageStates(ros::Time &rt);
-    void RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt);
+    modeling::State6DOF RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt);
     modeling::ErrorState6DOF dynamics(const modeling::State6DOF& x, const modeling::Wrench& u,const double& m, const Eigen::Matrix3d& J, const Eigen::Matrix3d& J_inv);
 
     ros::NodeHandle nh_;
