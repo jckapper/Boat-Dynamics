@@ -14,7 +14,7 @@ namespace boat_dynamics {
         boat_width_m_ = 1.0; // 8.504;
         grav_ = Vector3d(0., 0., -9.81);
         //inertia_matrix_ = Matrix3d::Identity();
-        inertia_matrix << 2 * pow(boat_width_m, 2), 0, 0, //comma-initialization
+        inertia_matrix_ << 2 * pow(boat_width_m, 2), 0, 0, //comma-initialization
                         0, pow(boat_width_m, 2) + pow(boat_length_m, 2), 0,
                         0, 0, pow(boat_width_m, 2) + pow(boat_length_m, 2);
         boat_inertia_ = (1.0 / 5) * boat_mass_kg_ * inertia_matrix_;
