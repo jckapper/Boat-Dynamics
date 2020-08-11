@@ -8,33 +8,29 @@ namespace boat_dynamics {
         nh_ = ros::NodeHandle();
 
         // Starting here: initialize persistent class members for calculations 
-        boat_height_m_ = 2.0;
-        boat_mass_kg = 1; //227600;
-        boat_length_m = 1; //33.2232;
-        boat_width_m = 1;// 8.504;
-        Vector3d grav = Vector3d(0, 0, 9.81);
-        Matrix3d inertia_matrix;//check syntax
-        inertia_matrix << 2 * boat_width_m * boat_width_m, 0, 0, //comma-initialization
-            0, (boat_width_m * boat_width_m) + (boat_length_m * boat_length_m), 0,
-            0, 0, (boat_width_m * boat_width_m) + (boat_length_m * boat_length_m);
-        Matrix3d boat_inertia = (1.0 / 5) * boat_mass_kg * inertia_matrix;
-        Matrix3d boat_inertia_inv = boat_inertia.inverse();
+        boat_height_m_ = 1.0; // 2.0;
+        boat_mass_kg_ = 1.0; // 227600;
+        boat_length_m_ = 1.0; // 33.2232;
+        boat_width_m_ = 1.0; // 8.504;
+        grav_ = Vector3d(0., 0., -9.81);
+        //inertia_matrix_ = Matrix3d::Identity();
+        inertia_matrix << 2 * pow(boat_width_m, 2), 0, 0, //comma-initialization
+                        0, pow(boat_width_m, 2) + pow(boat_length_m, 2), 0,
+                        0, 0, pow(boat_width_m, 2) + pow(boat_length_m, 2);
+        boat_inertia_ = (1.0 / 5) * boat_mass_kg_ * inertia_matrix_;
+        boat_inertia_inv_ = boat_inertia_.inverse();
 
         //define wrench here
-        modeling::Wrench Initial_wrench;
-        Initial_wrench.F = -grav*boat_mass_kg;
-        Initial_wrench.T = Vector3d(0, 0, 10);
-
-        //    boat_speed_mps_ = 0.5;
-        // boat_speed_mps_ = nh_private_.param<double>("boat_speed", 0.0); // Is this speed needed
+        u_.F = -grav_ * boat_mass_kg_;
+        u_.T = Vector3d(0., 0., 0.); // Vector3d(0, 0, 250);
 
         T_0_boat_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::Identity());
         T_0_boatNED_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::from_euler(M_PI, 0.0, 0.0));
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
-        modeling::State6DOF Current_State;
-        Current_State.X = (T_0_boat_);
-        Current_State.v = Vector3d(2.0, 0.0, 0.0);
-        Current_State.w = Vector3d(0.0,0.0,0.0)
+        
+        Current_State_.X = (T_0_boat_);
+        Current_State_.v = Vector3d(0., 0., 0.);
+        Current_State_.w = Vector3d(0., 0., 0.);
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
         marker_pub_ = nh_.advertise<visualization_msgs::Marker>("boat_marker", 1);
@@ -67,7 +63,7 @@ namespace boat_dynamics {
     }
 
     // Beginning adaptation
-    modeling::ErrorState6DOF BoatDynamics::RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,
+    modeling::State6DOF BoatDynamics::RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,
         const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt)
     {
         modeling::ErrorState6DOF k1 = dynamics(State, u, mass, inertia, inertia_inv);
@@ -83,7 +79,7 @@ namespace boat_dynamics {
 
         modeling::ErrorState6DOF dx = (k1 + k2 * 2.0 + k3 * 2.0 + k4) * (dt / 6.0);
 
-        return dx;
+        return State + dx;
 
     }
 
@@ -91,8 +87,9 @@ namespace boat_dynamics {
         const double& m, const Eigen::Matrix3d& J, const Eigen::Matrix3d& J_inv)
     {
         modeling::ErrorState6DOF dx;
+        // Need to work on reference frame implementation
         dx.p = x.q.rota(x.v);
-        dx.v = u.F / m + x.q.rotp(grav) - x.w.cross(x.v);
+        dx.v = u.F / m + x.q.rotp(grav_) - x.w.cross(x.v);
         dx.q = x.w;
         dx.w = J_inv * (u.T - x.w.cross(J * x.w));
 
@@ -116,9 +113,7 @@ namespace boat_dynamics {
         
         // Need to update boat state
         // T_0_boat_.t_(0) += boat_speed_mps_ * dt;
-        Current_State += RKintegrate(Current_State, Initial_wrench, boat_mass_kg, boat_inertia, boat_inertia_inv, dt);
-
-        // ++++ update orientation using from_two_unit_vectors ++++
+        Current_State_ = RKintegrate(Current_State_, u_, boat_mass_kg_, boat_inertia_, boat_inertia_inv_, dt);
 
         // update and send messages
         setMessageStates(Rt);
@@ -131,15 +126,15 @@ namespace boat_dynamics {
     void BoatDynamics::setMessageStates(ros::Time& rt)
     {
         transform_.header.stamp = rt;
-        transform_.transform.translation.x = Current_State.p.x();
-        transform_.transform.translation.y = Current_State.p.y();
-        transform_.transform.translation.z = Current_State.p.z();
-        transform_.transform.rotation.w = Current_State.q.w();
-        transform_.transform.rotation.x = Current_State.q.x();
-        transform_.transform.rotation.y = Current_State.q.y();
-        transform_.transform.rotation.z = Current_State.q.z();
+        transform_.transform.translation.x = Current_State_.p.x();
+        transform_.transform.translation.y = Current_State_.p.y();
+        transform_.transform.translation.z = Current_State_.p.z();
+        transform_.transform.rotation.w = Current_State_.q.w();
+        transform_.transform.rotation.x = Current_State_.q.x();
+        transform_.transform.rotation.y = Current_State_.q.y();
+        transform_.transform.rotation.z = Current_State_.q.z();
 
-        Xformd T_NED_boat = T_NED_0_ * Current_State.X;
+        Xformd T_NED_boat = T_NED_0_ * Current_State_.X;
 
         truth_.header.stamp = rt;
         truth_.pose.position.x = T_NED_boat.t_(0);

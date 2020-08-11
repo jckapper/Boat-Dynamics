@@ -145,6 +145,13 @@ namespace modeling {
             return dx;
         }
     };
+
+    inline std::ostream& operator<< (std::ostream& os, const State6DOF& e)
+    {
+        os << "t: " << e.p.transpose() << " q: " << e.q << " v: " << e.v.transpose() << " w: " << e.w.transpose();
+        return os;
+    }
+
     struct Wrench
     {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -218,7 +225,7 @@ public:
 private:
     void onUpdate(const ros::TimerEvent &event);
     void setMessageStates(ros::Time &rt);
-    modeling::ErrorState6DOF RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt);
+    modeling::State6DOF RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt);
     modeling::ErrorState6DOF dynamics(const modeling::State6DOF& x, const modeling::Wrench& u,const double& m, const Eigen::Matrix3d& J, const Eigen::Matrix3d& J_inv);
 
     ros::NodeHandle nh_;
@@ -226,18 +233,18 @@ private:
     ros::Timer timer_;
 
     double boat_height_m_;
-    int boat_mass_kg;
-    double boat_length_m;
-    double boat_width_m;
-    Vector3d grav;
-    Matrix3d inertia_matrix;
-    Matrix3d boat_inertia;
-    Matrix3d boat_inertia_inv;
+    int boat_mass_kg_;
+    double boat_length_m_;
+    double boat_width_m_;
+    Vector3d grav_;
+    Matrix3d inertia_matrix_;
+    Matrix3d boat_inertia_;
+    Matrix3d boat_inertia_inv_;
     double boat_speed_mps_;
     double t_prev_;
     bool t_initialized_;
-    modeling::State6DOF Current_State;
-    modeling::Wrench Initial_wrench;
+    modeling::State6DOF Current_State_;
+    modeling::Wrench u_;
 
 
     Xformd T_0_boat_;
