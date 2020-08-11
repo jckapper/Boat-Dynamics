@@ -16,7 +16,7 @@ namespace boat_dynamics {
         //inertia_matrix_ = Matrix3d::Identity();
         inertia_matrix_ << (2 * boat_width_m_ * boat_width_m_), 0., 0., //comma-initialization
                         0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_)), 0.,
-                        0., 0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_);
+                        0., 0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_));
         boat_inertia_ = (1.0 / 5.0) * boat_mass_kg_ * inertia_matrix_;
         boat_inertia_inv_ = boat_inertia_.inverse();
 
