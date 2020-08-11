@@ -22,7 +22,7 @@ namespace boat_dynamics {
 
         //define wrench here
         u_.F = -grav_ * boat_mass_kg_;
-        u_.T = Vector3d(0., 0., 20.);
+        u_.T = Vector3d(0., 0., 100.);
 
         T_0_boat_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::Identity());
         T_0_boatNED_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::from_euler(M_PI, 0.0, 0.0));
