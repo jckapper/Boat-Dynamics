@@ -9,21 +9,21 @@ namespace boat_dynamics {
 
         // Starting here: initialize persistent class members for calculations 
         boat_height_m_ = 2.0;
-        boat_mass_kg = 227600;
-        boat_length_m = 33.2232;
-        boat_width_m = 8.504;
-        Vector3d grav = Vector3d(0, 0, -9.81);
+        boat_mass_kg = 1; //227600;
+        boat_length_m = 1; //33.2232;
+        boat_width_m = 1;// 8.504;
+        Vector3d grav = Vector3d(0, 0, 9.81);
         Matrix3d inertia_matrix;//check syntax
-        inertia_matrix << 2 * pow(boat_width_m, 2), 0, 0, //comma-initialization
-            0, pow(boat_width_m, 2) + pow(boat_length_m, 2), 0,
-            0, 0, pow(boat_width_m, 2) + pow(boat_length_m, 2);
+        inertia_matrix << 2 * boat_width_m * boat_width_m, 0, 0, //comma-initialization
+            0, (boat_width_m * boat_width_m) + (boat_length_m * boat_length_m), 0,
+            0, 0, (boat_width_m * boat_width_m) + (boat_length_m * boat_length_m);
         Matrix3d boat_inertia = (1.0 / 5) * boat_mass_kg * inertia_matrix;
         Matrix3d boat_inertia_inv = boat_inertia.inverse();
 
         //define wrench here
         modeling::Wrech Initial_wrench;
-        Initial_wrench.F = grav*boat_mass_kg;
-        Initial_wrench.T = Vector3d(0, 0, 250);
+        Initial_wrench.F = -grav*boat_mass_kg;
+        Initial_wrench.T = Vector3d(0, 0, 10);
 
         //    boat_speed_mps_ = 0.5;
         // boat_speed_mps_ = nh_private_.param<double>("boat_speed", 0.0); // Is this speed needed
@@ -34,7 +34,7 @@ namespace boat_dynamics {
         modeling::State6DOF Current_State;
         Current_State.X = (T_0_boat_);
         Current_State.v = Vector3d(2.0, 0.0, 0.0);
-        Current_State.w = Vector3d(0.0, 0.0, 0.0);
+        Current_State.w = Vector3d(0.0,0.0,0.0)
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
         marker_pub_ = nh_.advertise<visualization_msgs::Marker>("boat_marker", 1);
@@ -131,13 +131,13 @@ namespace boat_dynamics {
     void BoatDynamics::setMessageStates(ros::Time& rt)
     {
         transform_.header.stamp = rt;
-        transform_.transform.translation.x = Current_State.v(0)*dt;
-        transform_.transform.translation.y = Current_State.v(1)*dt;
-        transform_.transform.translation.z = Current_State.v(2)*dt;
-        transform_.transform.rotation.w = Current_State.X.q_.w();
-        transform_.transform.rotation.x = Current_State.X.q_.x();
-        transform_.transform.rotation.y = Current_State.X.q_.y();
-        transform_.transform.rotation.z = Current_State.X.q_.z();
+        transform_.transform.translation.x = Current_State.p.x();
+        transform_.transform.translation.y = Current_State.p.y();
+        transform_.transform.translation.z = Current_State.p.z();
+        transform_.transform.rotation.w = Current_State.q.w();
+        transform_.transform.rotation.x = Current_State.q.x();
+        transform_.transform.rotation.y = Current_State.q.y();
+        transform_.transform.rotation.z = Current_State.q.z();
 
         Xformd T_NED_boat = T_NED_0_ * Current_State.X;
 
