@@ -21,7 +21,7 @@ namespace boat_dynamics {
         Matrix3d boat_inertia_inv = boat_inertia.inverse();
 
         //define wrench here
-        modeling::Wrech Initial_wrench;
+        modeling::Wrench Initial_wrench;
         Initial_wrench.F = -grav*boat_mass_kg;
         Initial_wrench.T = Vector3d(0, 0, 10);
 
