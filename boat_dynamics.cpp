@@ -28,7 +28,7 @@ namespace boat_dynamics {
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         
         Current_State_.X = (T_0_boat_);
-        Current_State_.v = Vector3d(0.5, 0.01, 0.);
+        Current_State_.v = Vector3d(0.1, 0.01, 0.);
         Current_State_.w = Vector3d(0.1, 0., 0.1);
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
@@ -86,7 +86,6 @@ namespace boat_dynamics {
         const double& m, const Eigen::Matrix3d& J, const Eigen::Matrix3d& J_inv)
     {
         modeling::ErrorState6DOF dx;
-        // Need to work on reference frame implementation
         dx.p = x.q.rota(x.v);
         dx.v = u.F / m + x.q.rotp(grav_) - x.w.cross(x.v);
         dx.q = x.w;
@@ -110,8 +109,6 @@ namespace boat_dynamics {
         double dt = t - t_prev_;
         t_prev_ = t;
         
-        // Need to update boat state
-        // T_0_boat_.t_(0) += boat_speed_mps_ * dt;
         Current_State_ = RKintegrate(Current_State_, u_, boat_mass_kg_, boat_inertia_, boat_inertia_inv_, dt);
 
         // update and send messages
