@@ -20,7 +20,6 @@ namespace boat_dynamics {
         boat_inertia_ = (1.0 / 5.0) * boat_mass_kg_ * inertia_matrix_;
         boat_inertia_inv_ = boat_inertia_.inverse();
 
-        //define wrench here
         u_.F = -grav_ * boat_mass_kg_;
         u_.T = Vector3d(0., 0., 12500.);
 
@@ -29,8 +28,8 @@ namespace boat_dynamics {
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         
         Current_State_.X = (T_0_boat_);
-        Current_State_.v = Vector3d(0.5, 0., 0.);
-        Current_State_.w = Vector3d(0., 0., 0.);
+        Current_State_.v = Vector3d(0.5, 0.01, 0.);
+        Current_State_.w = Vector3d(0.1, 0., 0.1);
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
         marker_pub_ = nh_.advertise<visualization_msgs::Marker>("boat_marker", 1);
