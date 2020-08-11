@@ -8,10 +8,10 @@ namespace boat_dynamics {
         nh_ = ros::NodeHandle();
 
         // Starting here: initialize persistent class members for calculations 
-        boat_height_m_ = 1.0; // 2.0;
-        boat_mass_kg_ = 1.0; // 227600;
-        boat_length_m_ = 1.0; // 33.2232;
-        boat_width_m_ = 1.0; // 8.504;
+        boat_height_m_ = 2.0;
+        boat_mass_kg_ = 227600;
+        boat_length_m_ = 33.2232;
+        boat_width_m_ = 8.504;
         grav_ = Vector3d(0., 0., -9.81);
         //inertia_matrix_ = Matrix3d::Identity();
         inertia_matrix_ << (2 * boat_width_m_ * boat_width_m_), 0., 0., //comma-initialization
@@ -22,14 +22,14 @@ namespace boat_dynamics {
 
         //define wrench here
         u_.F = -grav_ * boat_mass_kg_;
-        u_.T = Vector3d(0., 0., 2.);
+        u_.T = Vector3d(0., 0., 20.);
 
         T_0_boat_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::Identity());
         T_0_boatNED_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::from_euler(M_PI, 0.0, 0.0));
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         
         Current_State_.X = (T_0_boat_);
-        Current_State_.v = Vector3d(2., 0., 0.);
+        Current_State_.v = Vector3d(0.5, 0., 0.);
         Current_State_.w = Vector3d(0., 0., 0.);
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
