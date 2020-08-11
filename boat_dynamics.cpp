@@ -14,10 +14,10 @@ namespace boat_dynamics {
         boat_width_m_ = 1.0; // 8.504;
         grav_ = Vector3d(0., 0., -9.81);
         //inertia_matrix_ = Matrix3d::Identity();
-        inertia_matrix_ << 2 * pow(boat_width_m, 2), 0, 0, //comma-initialization
-                        0, pow(boat_width_m, 2) + pow(boat_length_m, 2), 0,
-                        0, 0, pow(boat_width_m, 2) + pow(boat_length_m, 2);
-        boat_inertia_ = (1.0 / 5) * boat_mass_kg_ * inertia_matrix_;
+        inertia_matrix_ << (2 * boat_width_m_ * boat_width_m_), 0., 0., //comma-initialization
+                        0., ((boat_width_m * boat_width_m_) + (boat_length_m_ * boat_length_m)), 0.,
+                        0., 0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_);
+        boat_inertia_ = (1.0 / 5.0) * boat_mass_kg_ * inertia_matrix_;
         boat_inertia_inv_ = boat_inertia_.inverse();
 
         //define wrench here
@@ -29,7 +29,7 @@ namespace boat_dynamics {
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         
         Current_State_.X = (T_0_boat_);
-        Current_State_.v = Vector3d(0., 0., 0.);
+        Current_State_.v = Vector3d(2., 0., 0.);
         Current_State_.w = Vector3d(0., 0., 0.);
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
