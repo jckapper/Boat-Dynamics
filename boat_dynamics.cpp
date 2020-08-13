@@ -29,6 +29,7 @@ namespace boat_dynamics {
         Current_State_.X = (T_0_boat_);
         Current_State_.v = Vector3d(0.1, 0., 0.);
         Current_State_.w = Vector3d(0., 0., 0.);
+        Current_State_.q = Quatd::Identity();
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
         marker_pub_ = nh_.advertise<visualization_msgs::Marker>("boat_marker", 1);
