@@ -13,7 +13,6 @@ namespace boat_dynamics {
         boat_length_m_ = 33.2232;
         boat_width_m_ = 8.504;
         grav_ = Vector3d(0., 0., -9.81);
-        //inertia_matrix_ = Matrix3d::Identity();
         inertia_matrix_ << (2 * boat_width_m_ * boat_width_m_), 0., 0., //comma-initialization
                         0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_)), 0.,
                         0., 0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_));
@@ -28,8 +27,8 @@ namespace boat_dynamics {
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         
         Current_State_.X = (T_0_boat_);
-        Current_State_.v = Vector3d(0.1, 0.01, 0.);
-        Current_State_.w = Vector3d(0.1, 0., 0.1);
+        Current_State_.v = Vector3d(0.25, 0., 0.);
+        Current_State_.w = Vector3d(0., 0., 0.);
 
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
         marker_pub_ = nh_.advertise<visualization_msgs::Marker>("boat_marker", 1);
