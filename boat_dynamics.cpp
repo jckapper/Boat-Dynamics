@@ -19,8 +19,8 @@ namespace boat_dynamics {
         boat_inertia_ = (1.0 / 5.0) * boat_mass_kg_ * inertia_matrix_;
         boat_inertia_inv_ = boat_inertia_.inverse();
 
-        u_.F = Vector3d(0., 1000., -9.81*boat_mass_kg_);//-grav_ * boat_mass_kg_;
-        u_.T = Vector3d(0., 0., 12500.);
+        u_.F = Vector3d(0., 10., -9.81*boat_mass_kg_);//-grav_ * boat_mass_kg_;
+        u_.T = Vector3d(0., 0., 13500.);
 
         T_0_boat_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::Identity());
         T_0_boatNED_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::from_euler(M_PI, 0.0, 0.0));
