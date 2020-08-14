@@ -27,7 +27,7 @@ namespace boat_dynamics {
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         
         Current_State_.X = (T_0_boat_);
-        Current_State_.v = Vector3d(.5, 0., 0.);
+        Current_State_.v = Vector3d(.125, 0., 0.);
         Current_State_.w = Vector3d(0., 0., 0.);
         Current_State_.q = Quatd::Identity();
 
