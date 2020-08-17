@@ -243,6 +243,9 @@ private:
     double boat_speed_mps_;
     double t_prev_;
     bool t_initialized_;
+    double X_velocity;
+    double Y_Velocity;
+    double Z_Velocity;
     modeling::State6DOF Current_State_;
     modeling::Wrench u_;
 
