@@ -246,7 +246,7 @@ private:
     bool t_initialized_;
     modeling::State6DOF Current_State_;
     modeling::Wrench u_;
-    double X_velocity;
+    double X_Velocity;
     double Y_Velocity;
     double Z_Velocity;
 
