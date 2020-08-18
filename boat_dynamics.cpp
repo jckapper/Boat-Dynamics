@@ -1,5 +1,6 @@
 #include "boat_dynamics/boat_dynamics.h"
 using namespace Eigen;
+using namespace std;
 
 namespace boat_dynamics {
 
