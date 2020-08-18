@@ -24,7 +24,7 @@ namespace boat_dynamics {
         T_0_boatNED_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::from_euler(M_PI, 0.0, 0.0));
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         
-        cout << "--Please Specify Initial Conditions--";
+        cout << "--Please Specify Initial Conditions--\n";
         
         cout << "Enter an initial X velocity: ";
         cin >> X_Velocity;
