@@ -35,7 +35,7 @@ namespace boat_dynamics {
         cin >> Z_Velocity;
         
         Current_State_.X = (T_0_boat_);
-        Current_State_.v = Vector3d(X_velocity, Y_velocity, Z_Velocity);       
+        Current_State_.v = Vector3d(X_Velocity, Y_Velocity, Z_Velocity);       
         Current_State_.w = Vector3d(0., 0., 0.);
         Current_State_.q = Quatd::Identity();
 
