@@ -38,7 +38,7 @@ namespace boat_dynamics {
         Current_State_.w = Vector3d(0., 0., 0.);
         Current_State_.q = Quatd::Identity();
         
-        u_.F = Vector3d(-7500.0., 0.0., 9.81*boat_mass_kg_);//-grav_ * boat_mass_kg_;
+        u_.F = Vector3d(-7500.0, 0.0., 9.81*boat_mass_kg_);//-grav_ * boat_mass_kg_;
         u_.T = Vector3d(0., 0., 0.);
         
         truth_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("boat_truth_NED", 1);
