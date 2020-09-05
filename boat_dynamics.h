@@ -10,6 +10,7 @@
 using namespace transforms;
 using namespace Eigen;
 
+// Including namespace modeling here, which Andrew built, to utilize its great State and Wrench methods
 namespace modeling {
     typedef Matrix<double, 6, 1> Vector6d;
     struct ErrorState6DOF
@@ -232,7 +233,8 @@ private:
     ros::NodeHandle nh_;
     ros::NodeHandle nh_private_;
     ros::Timer timer_;
-
+    
+    // Physical variables
     double boat_height_m_;
     int boat_mass_kg_;
     double boat_length_m_;
@@ -244,13 +246,13 @@ private:
     double boat_speed_mps_;
     double t_prev_;
     bool t_initialized_;
-    modeling::State6DOF Current_State_;
-    modeling::Wrench u_;
     double X_Velocity;
     double Y_Velocity;
     double Z_Velocity;
-
-
+    
+    // State variables
+    modeling::State6DOF Current_State_;
+    modeling::Wrench u_;
     Xformd T_0_boat_;
     Xformd T_0_boatNED_;
     Xformd T_NED_0_;
