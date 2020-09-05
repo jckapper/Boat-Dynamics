@@ -8,7 +8,7 @@ namespace boat_dynamics {
     {
         nh_ = ros::NodeHandle();
 
-        // Starting here: initialize persistent class members for calculations 
+        // Initialize persistent physical class members for calculations 
         boat_height_m_ = 2.0;
         boat_mass_kg_ = 227600;
         boat_length_m_ = 33.2232;
@@ -19,13 +19,14 @@ namespace boat_dynamics {
                         0., 0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_));
         boat_inertia_ = (1.0 / 5.0) * boat_mass_kg_ * inertia_matrix_;
         boat_inertia_inv_ = boat_inertia_.inverse();
-
+        
+        // Initialize Xformd's and orientation quaternions
         T_0_boat_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::Identity());
         T_0_boatNED_ = Xformd((Vector3d() << 0.0, 0.0, boat_height_m_).finished(), Quatd::from_euler(M_PI, 0.0, 0.0));
         T_NED_0_ = Xformd((Vector3d() << 0.0, 0.0, 0.0).finished(), Quatd::from_euler(M_PI, 0.0, 0.0)).inverse();
         
+        // User input for initial conditions, simplifying and adding more input options in the future
         cout << "--Please Specify Initial Conditions--\n";
-        
         cout << "Enter an initial X velocity: ";
         cin >> X_Velocity;
         cout << "Enter an initial Y velocity: ";
@@ -33,11 +34,13 @@ namespace boat_dynamics {
         cout << "Enter an initial Z velocity: ";
         cin >> Z_Velocity;
         
+        // Initialize Six Degree of Freedom State method for boat
         Current_State_.X = (T_0_boat_);
         Current_State_.v = Vector3d(X_Velocity, Y_Velocity, Z_Velocity);       
         Current_State_.w = Vector3d(0., 0., 0.);
         Current_State_.q = Quatd::Identity();
         
+        // Initialize wrench
         u_.F = Vector3d(0.0, 0.0, 9.81*boat_mass_kg_);//-grav_ * boat_mass_kg_;
         u_.T = Vector3d(0., 0., 50000.);
         
@@ -75,6 +78,7 @@ namespace boat_dynamics {
     modeling::State6DOF BoatDynamics::RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,
         const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt)
     {
+        // Runge-Kutta integration
         modeling::ErrorState6DOF k1 = dynamics(State, u, mass, inertia, inertia_inv);
 
         modeling::State6DOF      x2 = State + k1 * (dt / 2.0);
@@ -95,6 +99,7 @@ namespace boat_dynamics {
     modeling::ErrorState6DOF BoatDynamics::dynamics(const modeling::State6DOF& x, const modeling::Wrench& u, 
         const double& m, const Eigen::Matrix3d& J, const Eigen::Matrix3d& J_inv)
     {
+        // Runge-Kutta Dynamics
         modeling::ErrorState6DOF dx;
         dx.p = x.q.rota(x.v);
         dx.v = u.F / m + x.q.rotp(grav_) - x.w.cross(x.v);
@@ -119,9 +124,10 @@ namespace boat_dynamics {
         double dt = t - t_prev_;
         t_prev_ = t;
         
+        // Calling Runge-Kutta equations to update position/orientation
         Current_State_ = RKintegrate(Current_State_, u_, boat_mass_kg_, boat_inertia_, boat_inertia_inv_, dt);
 
-        // update and send messages
+        // Update and send messages
         setMessageStates(Rt);
         tbr_.sendTransform(transform_);
         tbr_.sendTransform(transformNED_);
@@ -131,6 +137,7 @@ namespace boat_dynamics {
 
     void BoatDynamics::setMessageStates(ros::Time& rt)
     {
+        // Update simulation state for visuals
         transform_.header.stamp = rt;
         transform_.transform.translation.x = Current_State_.p.x();
         transform_.transform.translation.y = Current_State_.p.y();
