@@ -14,6 +14,8 @@ namespace boat_dynamics {
         boat_length_m_ = 33.2232;
         boat_width_m_ = 8.504;
         grav_ = Vector3d(0., 0., -9.81);
+        
+        // Approximating ship as an ellipsoid
         inertia_matrix_ << (2 * boat_width_m_ * boat_width_m_), 0., 0., //comma-initialization
                         0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_)), 0.,
                         0., 0., ((boat_width_m_ * boat_width_m_) + (boat_length_m_ * boat_length_m_));
