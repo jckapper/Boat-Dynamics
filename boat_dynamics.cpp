@@ -5,6 +5,9 @@ using namespace std;
 namespace boat_dynamics {
 
     BoatDynamics::BoatDynamics() : t_prev_(0.0), t_initialized_(false), nh_private_("~")
+        ///
+        /// Enter comment here
+        ///
     {
         nh_ = ros::NodeHandle();
 
@@ -79,6 +82,21 @@ namespace boat_dynamics {
     // Beginning adaptation
     modeling::State6DOF BoatDynamics::RKintegrate(modeling::State6DOF& State, const modeling::Wrench& u, const double& mass,
         const Eigen::Matrix3d& inertia, const Eigen::Matrix3d& inertia_inv, const double& dt)
+        ///
+        /// Implementation of 4th order Runge-Kutta integration that takes care of the bigger picture (calculating the change of state, phi in the explanation).
+        ///
+        /// This is done by combining the x's calculated by BoatDynamics::dynamics() with the State parameter and calculating the overall state change (phi in explanation, 
+        /// dx variable) that is then returned.  The function makes four calls to the BoatDynamics::dynamics() equation, one at each step, where most of the 
+        /// calculation is performed.  
+        /// 
+        /// Parameters:
+        /// State (State6DOF struct): the current state of the object (position and orientation) in one convenient package
+        /// u (const wrench): the force and torque that will be applied to the boat, currently a constant value
+        /// mass (const double): the mass of the boat
+        /// inertia (const Matrix3d): Eigen 3x3 double matrix for the inertia of the boat
+        /// inertia_inv (const Matrix3d): Eigen 3x3 double matrix, inverse of inertia parameter
+        /// dt (const double): the time change
+        ///
     {
         // Runge-Kutta integration
         modeling::ErrorState6DOF k1 = dynamics(State, u, mass, inertia, inertia_inv);
@@ -100,6 +118,19 @@ namespace boat_dynamics {
 
     modeling::ErrorState6DOF BoatDynamics::dynamics(const modeling::State6DOF& x, const modeling::Wrench& u, 
         const double& m, const Eigen::Matrix3d& J, const Eigen::Matrix3d& J_inv)
+        ///
+        /// Implementation of 4th order Runge-Kutta dynamics calculation to calculate dx (or f(x,u) depending on name used in explanation)
+        ///
+        /// The code calculates the Runge-Kutta dx matrix and stores it in an ErrorState6DOF struct so that it can be added to the initial state using
+        /// the manifold addition that is implemented in the struct.
+        /// 
+        /// Parameters:
+        /// x (State6DOF struct): the current state of the object (position and orientation) in one convenient package
+        /// u (const wrench): the force and torque that will be applied to the boat, currently a constant value
+        /// m (const double): the mass of the boat
+        /// J (const Matrix3d): Eigen 3x3 double matrix for the inertia of the boat
+        /// J_inv (const Matrix3d): Eigen 3x3 double matrix, inverse of inertia parameter
+        ///
     {
         // Runge-Kutta Dynamics
         modeling::ErrorState6DOF dx;
@@ -112,6 +143,9 @@ namespace boat_dynamics {
     }
 
     void BoatDynamics::onUpdate(const ros::TimerEvent&)
+        ///
+        /// Enter Comment here
+        ///
     {
         ros::Time Rt = ros::Time::now();
         double t = Rt.toSec();
@@ -138,6 +172,9 @@ namespace boat_dynamics {
     }
 
     void BoatDynamics::setMessageStates(ros::Time& rt)
+        ///
+        /// Enter comment here
+        ///
     {
         // Update simulation state for visuals
         transform_.header.stamp = rt;
