@@ -184,8 +184,7 @@ namespace boat_dynamics {
 
         double dt = t - t_prev_;
         t_prev_ = t;
-        
-        // Calling Runge-Kutta equations to update position/orientation
+
         Current_State_ = RKintegrate(Current_State_, u_, boat_mass_kg_, boat_inertia_, boat_inertia_inv_, dt);
 
         // Update and send messages
