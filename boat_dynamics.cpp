@@ -6,7 +6,18 @@ namespace boat_dynamics {
 
     BoatDynamics::BoatDynamics() : t_prev_(0.0), t_initialized_(false), nh_private_("~")
         ///
-        /// Enter comment here
+        /// Initializes all necessary variables and calculates persistent physical characteristics for the ship.
+        ///
+        /// Along with initializing all of the ship's values/characteristics, this function also sets markers for the simulation.  
+        /// User input is provided for entering an intial velocity vector before the simulation starts, options will be added 
+        /// for inputting force, torque, and orientations without first having to hardcode them in.  All reference frames
+        /// are also initialized here and are used throughout the calculation and visualizations later on.
+        /// 
+        /// Parameters:
+        /// None
+        ///
+        /// Returns:
+        /// None
         ///
     {
         nh_ = ros::NodeHandle();
@@ -92,10 +103,13 @@ namespace boat_dynamics {
         /// Parameters:
         /// State (State6DOF struct): the current state of the object (position and orientation) in one convenient package
         /// u (const wrench): the force and torque that will be applied to the boat, currently a constant value
-        /// mass (const double): the mass of the boat
-        /// inertia (const Matrix3d): Eigen 3x3 double matrix for the inertia of the boat
+        /// mass (const double): the mass of the ship
+        /// inertia (const Matrix3d): Eigen 3x3 double matrix for the inertia of the ship
         /// inertia_inv (const Matrix3d): Eigen 3x3 double matrix, inverse of inertia parameter
         /// dt (const double): the time change
+        ///
+        /// Returns:
+        /// State dx (State6DOF struct): the updated state of the ship
         ///
     {
         // Runge-Kutta integration
@@ -126,10 +140,13 @@ namespace boat_dynamics {
         /// 
         /// Parameters:
         /// x (State6DOF struct): the current state of the object (position and orientation) in one convenient package
-        /// u (const wrench): the force and torque that will be applied to the boat, currently a constant value
-        /// m (const double): the mass of the boat
-        /// J (const Matrix3d): Eigen 3x3 double matrix for the inertia of the boat
+        /// u (const wrench): the force and torque that will be applied to the ship, currently a constant value
+        /// m (const double): the mass of the ship
+        /// J (const Matrix3d): Eigen 3x3 double matrix for the inertia of the ship
         /// J_inv (const Matrix3d): Eigen 3x3 double matrix, inverse of inertia parameter
+        ///
+        /// Returns:
+        /// dx (ErrorState6DOF struct): the state change for the ship
         ///
     {
         // Runge-Kutta Dynamics
@@ -144,7 +161,15 @@ namespace boat_dynamics {
 
     void BoatDynamics::onUpdate(const ros::TimerEvent&)
         ///
-        /// Enter Comment here
+        /// Calls the Runge-Kutta state update function and performs other necessary calculations for the simulation state
+        ///
+        /// Keeps track of the dt for each step, and at each step calculates the change in state of the ship before updating and sending the ROS messages
+        /// 
+        /// Parameters:
+        /// Rt (const ros::TimerEvent): ROS timing for the event
+        ///
+        /// Returns:
+        /// None, void function
         ///
     {
         ros::Time Rt = ros::Time::now();
@@ -173,7 +198,16 @@ namespace boat_dynamics {
 
     void BoatDynamics::setMessageStates(ros::Time& rt)
         ///
-        /// Enter comment here
+        /// Sets ROS message states based of the updated ship state for each dt to be passed on to the simulation.
+        ///
+        /// The message state for each coordinate frame is calculated and set from the ship's updated state at each time step.
+        /// All values are pulled from Current_State_ which is a State6DOF struct and so contains all necessary position and orientation info.
+        /// 
+        /// Parameters:
+        /// rt (ros::Time): time from the ROS simulation
+        ///
+        /// Returns:
+        /// None, void function
         ///
     {
         // Update simulation state for visuals
